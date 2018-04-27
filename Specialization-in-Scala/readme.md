@@ -6,3 +6,4 @@ The Specialization Course in Scala is divided in five modules:
 2. Functional Program Design in Scala.
 3. Parallel Programming in Scala.
 4. Big Data Analysis with Scala & Spark
+5. Functional Programming in Scala Capstone

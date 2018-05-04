@@ -92,5 +92,6 @@ object RDDsTransformationsAndActions {
 	   */
 	  val firstlogsWithErrors = lastYearsLogs.filter(_.contains("error")).take(10)
 		
+	  sc.stop()
 	}
 }

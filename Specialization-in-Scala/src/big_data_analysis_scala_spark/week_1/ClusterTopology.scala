@@ -15,5 +15,6 @@ object ClusterTopology {
 		val people = allPeople.map{case(n, a) => new Person(n, a.toInt)}
 		people.foreach(println) //What happens?
 		people.take(10).foreach(println) //Where will the Array[Person] representing first10 end up?
+		sc.stop()
 	}
 }

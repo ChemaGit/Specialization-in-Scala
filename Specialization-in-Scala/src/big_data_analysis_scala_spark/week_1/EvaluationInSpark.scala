@@ -60,6 +60,6 @@ object EvaluationInSpark {
      * to Spark arises from unknowingly re-evaluating several transformations
      * when caching could be used.
      */
-		
+		sc.stop()
 	}
 }

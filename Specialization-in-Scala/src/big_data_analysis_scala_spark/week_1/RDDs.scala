@@ -2,12 +2,11 @@ package big_data_analysis_scala_spark.week_1
 
 import org.apache.spark.SparkConf
 import org.apache.spark.SparkContext
-import org.apache.spark.SparkContext._
 
 object RDDs {
   /**
    * RDDs seem a lot like immutable sequential or parallel Scala collections.
-   * map[BJ(f: A=> B): List[B] // Scala List
+   * map[B](f: A=> B): List[B] // Scala List
 	 * map[B](f: A=> B): RDD[B] // Spark RDD
    * flatMap[B](f: A=> TraversableOnce[B]): List[B] // Scala List
    * flatMap[B](f: A=> TraversableOnce[B]): RDD[B] // Spark RDD
@@ -17,7 +16,7 @@ object RDDs {
    * reduce(op: (A, A)=> A): A// Spark RDD
    * fold(z: A)(op: (A, A)=> A): A// Scala List
    * fold(z: A)(op: (A, A)=> A): A// Spark RDD
-   * aggregate[B](z: => B)(seqop : (B, A)=> B, combop : ( B, B) => B): B // Scala
+   * aggregate[B](z: => B)(seqop : (B, A)=> B, combop : (B, B) => B): B // Scala
    * aggregate[B](z: B)(seqop: (B, A)=> B, combop: (B, B) => B): B // Spark RDD
    */
   abstract class RDD[T] {
@@ -42,7 +41,7 @@ object RDDs {
     * encyclopedia for mentions of EPFL, and count the number of pages that
     * mention EPFL.	  
 		*/
-    val result= encyclopedia.filter(page => page.contains("EPFL")).count()	
+    val result = encyclopedia.filter(page => page.contains("EPFL")).count()	
     
     /**
      * "Word count" is the Hello world! of programming with large-scala data
@@ -63,7 +62,7 @@ object RDDs {
 	  
 	  /**
 	   * => parallelize: convert a local Scala collection to an RDD .
-     * => textFile: read a text file from HD FS or a local file system and return an RDD of String
+     * => textFile: read a text file from HDFS or a local file system and return an RDD of String
 	   */
     
 	}

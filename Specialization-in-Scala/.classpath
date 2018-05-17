@@ -8,5 +8,10 @@
 	<classpathentry kind="lib" path="C:/Users/chema/WorkspaceOxygen/Lilbrerias/ScalaLib/scala-parser-combinators_2.11-1.0.4.jar"/>
 	<classpathentry kind="lib" path="C:/Users/chema/WorkspaceOxygen/Lilbrerias/ScalaLib/scalacheck_2.11-1.12.6.jar"/>
 	<classpathentry kind="lib" path="C:/Users/chema/WorkspaceOxygen/Lilbrerias/ScalaLib/scalameter-core_2.11-0.6.jar"/>
+	<classpathentry kind="lib" path="C:/Users/chema/.coursier/cache/v1/https/repo1.maven.org/maven2/org/apache/spark/spark-core_2.11/2.1.0/spark-core_2.11-2.1.0.jar" sourcepath="C:/Users/chema/.coursier/cache/v1/https/repo1.maven.org/maven2/org/apache/spark/spark-core_2.11/2.1.0/spark-core_2.11-2.1.0-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:file:C:\Users\chema\.coursier\cache\v1\https\repo1.maven.org\maven2\org\apache\spark\spark-core_2.11\2.1.0\spark-core_2.11-2.1.0-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

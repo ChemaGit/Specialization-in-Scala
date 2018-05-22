@@ -304,6 +304,80 @@ object DataFrames {
   locationsDF.show()
   abosDF.show()
   
+  /**
+   * How do we combine only customers that have a subscription and
+   * where there is location info?
+   */
+  val trackedCustomerDF = abosDF.join(locationsDF, abosDF("id") === locationsDF("id"))
+  
+  /**
+   * the CFF wants to know for which subscribers the CFF has 
+   * managed to collect location information. It's possible that
+   * someone has demi-tarif, but doesn't use the CFF app and only 
+   * pays cash for tickets.
+   */
+  val abosWithOptionalLocationsDF = abosDF.join(locationsDF, abosDF("id") === locationsDF("id"), "left-outer")
+  
+  /**
+   * CodeAward is offering scholarships to programmers who have
+   * overcome adversity. 
+   * We have the following two datasets.
+   * Let's count
+   * Swiss students who have debt & financial dependents.
+   */    
+  case class Demographic(id: Int,
+                         age: Int,
+                         codingBootcamp: Boolean,
+                         country: String,
+                         gender: String,
+                         isEthnicMinority: Boolean,
+                         servedInMilitary: Boolean)  
+  val demographicsDF = sc.textFile("dir").map(line => line.split(","))
+                                       .map(d => (d(0).toInt, new Demographic(d(0).toInt,d(1).toInt,d(2).toBoolean,d(3),d(4),d(5).toBoolean,d(6).toBoolean)) )
+                                       .toDF("id","age","codingBootcamp","country","gender","isEthnicMinority","servedInMilitary")                         
+  
+  case class Finances(id: Int,
+                      hasDebt: Boolean,
+                      hasFinancialDependents: Boolean,
+                      hasStudentsLoans: Boolean,
+                      income: Int)
+  val financesDF = sc.textFile("dir").map(line => line.split(","))
+                                   .map(f => (f(0).toInt, new Finances(f(0).toInt,f(0).toBoolean,f(0).toBoolean,f(0).toBoolean,f(0).toInt)))
+                                   .toDF("id","hasDebt","hasFinancialDependents","hasStudentsLoans","income") 
+  val filtered = financesDF.filter($"hasDebt" && $"hasFinancialDependents")                                
+  val joined = demographicsDF.filter($"country" === "Switzerland").join(filtered, demographicsDF("id") === filtered("id"), "inner") 
+                             .count()
+  /**
+   * Comparing performance between hadwritten 
+   * RDD-based solutions and DataFrame solution:
+   * it's almost the same than RDD-based solution 
+   * with filter first.
+   * DataFrame 1.24 seconds
+   * RDD-filtered 1.35 seconds
+   * It's possible becausse Spark SQL comes with two
+   * specialized backend components:
+   * - Catalyst, query optimizer  
+   * - Tungsten, off-heap serializer.                         
+   */
+                             
+  /**
+   * Limitations of DataFrames: Untyped!
+   * listingsDF.filter($"state" === "CA")
+   * //org.apache.spark.sql.AnalysisException:
+   * //cannot resolve "state" given input columns: [street, zip, price];;
+   * Your code compiles, but you get runtime exceptions when you attempt to 
+   * run a query on a column that doesn't exist.
+   * Would be nice if this was caught at compile time like we're used to in Scala!
+   * 
+   * Limited Data Types
+   * If your data can't be expressed by case classes/Products and standard
+   * Spark SQL data types, it may be difficult to ensure that a Tungsten encoder
+   * exists for your data type.
+   * 
+   * Requires Semi-Structured/Structured Data
+   * If your unstructured data cannot be reformulated to adhere to 
+   * some kind of schema, IT WOULD BE BETTER TO USE RDDs.                             
+   */
   
 	def main(args: Array[String]) {
 		

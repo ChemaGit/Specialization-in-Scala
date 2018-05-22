@@ -4,6 +4,7 @@ import org.apache.spark.SparkConf
 import org.apache.spark.SparkContext
 import org.apache.spark.sql._
 import org.apache.spark.sql.types._
+import org.apache.spark.sql.functions._
 
 object DataFrames {
   
@@ -191,8 +192,117 @@ object DataFrames {
   
   /**
    * Grouping and Aggregating on Data Frames
+   * One of the most common tasks on tables is to (1) group data by a certain
+   * attribute, and then (2) do some kind of aggregation on it like a count.
+   * 
+   * For grouping & aggregating, SparkSQL provides:
+   * - a groupBy function which returns a RelationalGroupedDataset,
+   *   which has several standard aggregation functions defined on ti like count, sum, min, max, and avg.
+   *   
+   * - How to group and aggregate?
+   *   Just call groupBy on specific attribute/column(s) of a DataFrame,
+   *   followed by a call to a method on RelationalGroupedDataset like count, max,
+   *   or agg (for agg, also specify which attribute/column(s) subsequent
+   *   spark.sql.functions like count, sum, max, etc, should be called upon.)  
    */
-                    
+   employeeDF.groupBy($"id").agg(sum($"age"))
+   employeeDF.groupBy($"id").count()   
+   
+  /**
+   * Example:
+   * Let's assume that we have a dataset of homes currently for sale in an
+   * entire US state. Let's calculate the most expensive, and least expensive
+   * homes for sale per zip code.
+   */
+  case class Listing(street: String, zip: Int, price: Int) 
+  val listingsDF = sc.textFile("dir").map(line => line.split(",")).map(f => new Listing(f(0), f(1).toInt, f(2).toInt))
+                   .toDF("street", "zip", "price")
+  val mostExpensive = listingsDF.groupBy($"zip").max("price") 
+  val lessExpensive = listingsDF.groupBy($"zip").min("price")
+  
+  /**
+   * Example:
+   * Let's assume we have the following data set representing all of the posts in a
+   * busy open source community's Discourse forum.
+   * Let's say we would like to tally up each authors' posts per subforum, and then
+   * rank the authors with the most posts per subforum.
+   */
+  case class Post(authorID: Int, subforum: String, likes: Int, date: String)
+  val postsDF = sc.textFile("dir").map(line => line.split(",")).map(f => new Post(f(0).toInt, f(1), f(2).toInt, f(3)))
+                   .toDF("authorID", "subforum", "likes", "data")
+  val rankedDF = postsDF.groupBy($"authorID", $"subforum")
+                        .agg(count($"authorID")) // new DF with columns authorID, subforum, count(authorID)
+                        .orderBy($"subforum", $"count(authorID)".desc)     
+                        
+  /**
+   * After callinggroupBy, methods on RelationalGroupedDataset:   
+   * To see a list of all operations you can call following a groupBy, see
+   * the API docs for RelationalGroupedDataset.
+   * http://spark.apache.org/docs/latest/api/scala/index.html#org.apache.spark.sql.RelationalGroupedDataset                   
+   */
+                        
+  /**
+   * Methods within agg:
+   * Examples include: min, max, sum, mean, stddev, cout, avg, first, last. To see a list
+   * of all operations you can call within an agg, see the API docs for org.apache.spark.sql.functions.
+   * http://spark.apache.org/docs/latest/api/scala/index.html#org.apache.spark.sql.functions$                     
+   */
+                        
+  /**
+   * Cleaning data with DataFrames       
+   * Sometimes you may have a data set with null or NaN values.
+   * We can do one of the following:
+   * - drop rows/records with unwanted values like null or NaN
+   * - replace certain values with a constant.
+   * 1. Dropping records with unwanted values:
+   * - drop() ==>> drops rows that contain null or NaN values in all
+   *   columns and returns a new DataFrame.
+   * - drop("all") ==>> drops rows that contain null or NaN values in 
+   *   all columns and returns a new DataFrame
+   * - drop(Array("id", "name")) ==>> drops rows that contain null or
+   *   Nan values in the specified columns and returns a new DataFrame.
+   * 2. Reclacing unwanted values:
+   * - fill(0) ==>> replaces all occurrences of null or NaN in numeric columns
+   *   with specified value and returns a new DataFrame.
+   * - fill(Map("minBalance" -> 0)) ==>> replaces all occurrences of null or NaN
+   *   in specified column with spcified value and returns a new DataFrame.
+   * - replace(Array(id), Map(1234 -> 8923)) replaces specified value (1234) in
+   *   specified column (id) with specified replacement value (8923) and returns
+   *   a new DataFrame.                          
+   */
+                        
+  /**
+   * Common Actions on DataFrames
+   * - collect(): Array[Row] ==>> returns an array that contains all 
+   *   of Rows in this DataFrame
+   * - count(): Long ==>> returns the number of rows in the DataFrame
+   * - first(): Row/head(): Row ==> returns the first row in the DataFrame
+   * - show(): Unit ==>> displays the top 20 rows of DataFrame in a tabular form.
+   * - take(n: Int): Array[Row] ==>> returns the first n rows in the DataFrame.                          
+   */
+                        
+  /**
+   * Joins on DataFrames
+   * Several types of joins are available:
+   * inner, outer, left_outer, right_outer, leftsemi.
+   * Performing joins:
+   * - inner join ==>> df1.join(df2, $"df1.id" === $"df2.id")
+   * It's possible to change the join type by passing an additional string
+   * parameter to join specifying which type of join to perform
+   * - df1.join(df2, $"df1.id" === $"df2.id", "right_outer")                        
+   */
+  case class Abo(id: Int, v: (String, String))
+  case class Loc(id: Int, v: String)
+  
+  val as = List(Abo(101, ("Ruetli", "AG")),Abo(102, ("Brelaz", "DemiTarif")),Abo(103, ("Gress", "DemiTarifVisa")),Abo(104, ("Schatten", "DemiTarif")))
+  val abosDF = sc.parallelize(as).toDF
+  
+  val ls = List(Loc(101, "Bern"),Loc(101, "Thun"),Loc(102, "Lausanne"),Loc(102, "Geneve"),
+                Loc(102, "Nyon"),Loc(103, "Zurich"),Loc(103, "St-Gallen"),Loc(103, "Chur"))
+  val locationsDF = sc.parallelize(ls).toDF
+  
+  locationsDF.show()
+  abosDF.show()
   
   
 	def main(args: Array[String]) {

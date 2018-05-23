@@ -5,6 +5,7 @@ import org.apache.spark.SparkContext
 import org.apache.spark.sql._
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.functions._
+import org.apache.spark.sql.expressions._
 
 object Datasets {
   
@@ -112,10 +113,161 @@ object Datasets {
    * - filter(pred: T => Boolean): Dataset[T] ==>> Apply predicate function to each element in the Dataset
    *   and return a Dataset of elements that have passed the predicate condition, pred.  
    * - distinct(): Dataset[T] ==>> Return Dataset with duplicates removed.
-   * - group ByKey[K](f: T => K): KeyValueGroupedDataset[K, T] ==>> Apply function to each element in the Dataset 
-   *   and return a Dataset of the result.  
+   * - groupByKey[K](f: T => K): KeyValueGroupedDataset[K, T] ==>> Apply function to each element in the Dataset 
+   *   and return a Dataset of the result. 
+   * - coalesce(numPartitions: Int): Dataset[T] ==>> Apply a function to each element in the Dataset and return
+   *   a Dataset of the contents of the iterators returned. 
+   * - repartition(numPartitions: Int): Dataset[T] ==>> Apply predicate function to each element in the Dataset
+   *   and return a Dataset of elements that have passed the predicate condition, pred.    
    */
-                        
+  
+  /**
+   * Grouped operations on DataSets
+   * Like on DataFrames, Datasets have a special set of aggregation operations meant to be 
+   * used after a call to groupByKey on a Dataset.
+   * - calling groupByKey on a Dataset returns a KeyValueGroupedDataset
+   * - KeyValueGroupedDatasetcontains a number of aggregation operations which return Datasets.
+   * 
+   * Note: using groupBy on a Dataset, you will get back a RelationalGroupedDataset whose
+   * aggregation operators will return a DataFrame. Therefore, be careful to avoid groupBy if you
+   * would like to stay in the Dataset API.
+   * 
+   * Some KeyValueGroupedDataset Aggregation Operations
+   * - reduceGroups(f: (V, V) => V): Dataset[(K, V)] ==>> Reduces the elements of each group of data using the specified
+   *   binary function. The given function must be commutative and associative or the result may be non-deterministic.
+   * - agg[U](col: TypedColumn[V, U]): Dataset[(K, U)] ==>> Computes the given aggregation, returning a Dataset of tuples for
+   *   each unique key and the result of computing this aggregation over all elements in the group. 
+   * - mapGroups[U](f: (K, Iterator[V]) => U): Dataset[U] ==>> Applies the given function to each group of data. For each unique
+   *   group, the function will be passed the group key and an iterator that contains all of the elements in the group. 
+   *   The function can return an element of arbitrary type which will be returned as a new Dataset.  
+   * - flatMapGroups[U](f: (K, Iterator[V]) => TraversableOnce[U]): Dataset[U] ==>> Applies the given function 
+   *   to each group of data. For each unique group, the function will be passed the group key and
+   *   an iterator that contains all of the elements in the group. The function can return an iterator 
+   *   containing elements of an arbitrary type which will be returned as a new Dataset.   
+   *   
+   * Using the General agg Operation: agg[U](col: TypedColumn[V, U]): Dataset[(K, U)]
+   * - Typically, we simply select one of these operations from function, such as avg,
+   *   choose a column for avg to be computed on, and we pass it to agg (it's a typed column): 
+   *   someDS.agg(avg($"column").as[Double])  
+   */
+  
+  /**
+   * Challenge: Emulate the semantics of reduceByKey on a Dataset using Dataset operations
+   *            presented so far. Assume we'd have the following data set:
+   * Find a way to use Datasets to achive the same result that you would get if you 
+   * put this data into an RDD and called:           
+   */
+  val keyValues = List((3, "Me"), (1, "Thi"), (2, "Se"), (3, "ssa"), (1, "sisA"), (3, "ge:"), (3, "-)"), (2, "ere"), (2, "t" ))
+  val keyValuesRDD = sc.parallelize(keyValues)
+  keyValuesRDD.reduceByKey(_ + _)
+  
+  val keyValuesDS = keyValues.toDS()       
+  keyValuesDS.groupByKey(p => p._1).mapGroups((k, vs) => (k, vs.foldLeft("")((acc, p) => acc + p._2)))
+             .sort($"_1").show()
+  //+---+----------+
+  //| _1|       _2 |
+  //+---+----------+
+  //| 1 |  ThisIsA |
+  //| 2 |    Secret|  
+  //| 3 |Message:-)|
+  //+---+----------+
+  // The only issue with this approach is this disclaimer in the API docs for mapGroups:
+             //This function not support partial aggregation, and as a result requires shuffling
+             //all the data in the Dataset. If an application intends to perform an aggregation
+             //over each key, it is best to use the reduce function or an org.apache.spark.sql.expressions#Aggregator
+             
+  /**
+   * Aggregators ==>> class Aggregator[-IN, BUF, OUT] org.apache.spark.sql.expressions.Aggregator
+   * - IN: is the input type to the aggregator. When using an aggregator after groupByKey, this is the 
+   *       type that represents the value in the key/value pair.
+   * - BUF: is the intermediate type during aggregation.
+   * - OUT: is the type of the output of the aggregation.
+   *  
+   * This is how implement our own Aggregator 
+   *    val myAgg = new Aggregator[IN, BUF, OUT]{
+   *      def zero: BUF = ...                      //The initial value.
+   *      def reduce(b: BUF, a: IN): BUF = ...     //Add an element to the running total
+   *      def merge(b1: BUF, b2: BUF): BUF = ...   //Merge intermediate values.
+   *      def finish(b: BUF): OUT = ...            //Return the final result.
+   *    }.toColumn
+   *    
+   * ENCODERS
+   * - Encoders are what convert your data between JVM objects and Spark SQL's specialized
+   *   internal(tabular) representation. They're required by all Datasets!  
+   * - Encoders are highly specialized, optimized code generators that generate custom
+   *   bytecode for serialization and deserialization of your data, improving memory utilization.
+   * - Uses significantly less memory than Kryo/Java serialization
+   * - >10x faster than Kryo serialization(Java serialization orders of magnitude slower) 
+   * 
+   * Two ways to introduce encoders:
+   * 1. Automatically(generally the case) via implicits from a SpakSession import spark.implicits._
+   * 2. Explicitly via org.apache.spark.sql.Encoders which contains a large selection of methods
+   *    for creating Encoders from Scala primitive types and Products
+   *    
+   * - creation methods in Encoders
+   *   INT/LONG/STRING etc, for nullable primitives.
+   *   scalaInt/scalaLong/scalaByte etc, for Scala's primitives.
+   *   product/tuple for Scala's Product and tuple types.
+   * - Examples:
+   *   Encoders.scalaInt //Encoder[Int] 
+   *   Encoders.STRING //Encoder[String]
+   *   Encoders.product[Person] //Encoder[Person], where Person extends Product/is a case class.     
+   *   
+   * Emulating reduceByKey with an Aggregator                 
+   */
+  val strConcat = new Aggregator[(Int, String), String, String]{
+    def zero: String = ""
+    def reduce(b: String, a: (Int, String)): String = b + a._2
+    def merge(b1: String, b2: String): String = b1 + b2
+    def finish(r: String): String = r   
+    override def bufferEncoder: Encoder[String] = Encoders.STRING   //Tell Spark which Encoders you need.
+    override def outputEncoder: Encoder[String] = Encoders.STRING
+  }.toColumn
+  
+  //pass it to your aggregator
+  keyValuesDS.groupByKey(pair => pair._1).agg(strConcat.as[String])
+  .sort($"value")
+  .show()
+  //+-----+--------------------+
+  //|value|anon$1(scala.Tuple2)|
+  //+-----+--------------------+
+  //|    1|            ThisIsA |
+  //|    2|              Secret|  
+  //|    3|          Message:-)|
+  //+-----+--------------------+  
+  
+  /**
+   * Common Dataset Actions
+   * - collect(): Array[T] ==>> returns an array  that contains all of Rows in this Dataset.
+   * - count(): Long ==>> Returns the number of rows in the Dataset.
+   * - first(): T/head(): T ==>> returns the first row in this Dataset.
+   * - foreach(f: T => Unit): Unit ==>> Applies a function f to all rows.
+   * - reduce(f: (T, T) => T): T ==>> reduces the elements of this Dataset using the specified binary function.
+   * - show(): Unit ==>> Displays the top 20 rows of Dataset in a tabular form.
+   * - take(n: Int): Array[T] ==>> returns the first n rows in the Dataset.
+   */
+  
+  
+  /**
+   * When to use Datasets vs Data Frames vs RDDs?
+   * 1. Use Datasets when:
+   *    - you have structured/semi-structured data
+   *    - you want typesafety
+   *    - you need to work with functional APIs
+   *    - you need good performance, but it doesn't have to be the best.
+   * 2. Use DataFrames when:
+   *    - you have structured/semi-structured data
+   *    - you want the best possible performance, automatically optimized for you
+   * 3. Use RDDs when:
+   *    - you have unstructured data
+   *    - you need to fine-tune and manage low-level details of RDD computations  
+   *    - you have complex data types that cannot be serialized with Encoders     
+   */
+  
+  /**
+   * Limitations of Datasets
+   */
+  
 	def main(args: Array[String]) {
 		
 	}

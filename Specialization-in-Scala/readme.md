@@ -16,7 +16,21 @@ The Specialization Course in Scala is divided in five modules:
    The course is full of quizzes, examples, exercises and assignments.
    Recommended books: Structure and Interpretation of Computer Programs, by Harold Ibelson and Gerald Susman, 
    second edition appeared at MIT Press in'96. Programming in Scala second edition, by Martiy Ordesky, Lex Spoon, and Bill Venners.
-2. Functional Program Design in Scala.
+2. Functional Program Design in Scala by Martin Ordesky.
+   In this course we will learn how to apply the functional programming style in the design of larger applications. 
+   We'll get to know important new functional programming concepts, from lazy evaluation to structuring libraries using  monads.
+   We'll work on larger and more involved examples, from state space exploration to random testing to discrete circuit simulators.
+   We’ll also learn some best practices on how to write good Scala code in the real world.
+   Several parts of this course deal with the question how functional programming interacts with mutable state. We will explore the
+   consequences of combining functions and state. We will also look at purely functional alternatives to mutable state, using
+   infinite data structures or functional reactive programming.
+   Learning Outcomes:
+	 - recognize and apply design principles of functional programs,
+	 - design functional libraries and their APIs,
+	 - competently combine functions and state in one program,
+	 - understand reasoning techniques for programs that combine 
+	   functions and state,
+	 - write simple functional reactive applications.
 3. Parallel Programming in Scala.
 4. Big Data Analysis with Scala & Spark
 5. Functional Programming in Scala Capstone

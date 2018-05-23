@@ -108,7 +108,7 @@ object DataFrames {
    */
   case class Person(id: Int, name: String, country: String, city: String)
   val tuplePerson = sc.textFile("dir").map(line => line.split(",")).map(f => new Person(f(0).toInt, f(1), f(2), f(3)))
-  val personDF = tuplePerson.toDF("id","name","country","city") //infer the attributes from the case class's fields.  
+  val personDF = tuplePerson.toDF //infer the attributes from the case class's fields.  
   personDF.printSchema()
   // root
   // 1-- id: integer (nullable = true)
@@ -158,7 +158,7 @@ object DataFrames {
   case class Employee(id: Int, fname: String, lname: String, age: Int, city: String)
   //DataFrame with schema defined in Emplyee case class
   val employeeDF = sc.textFile("dir").map(line => line.split(",")).map(f => new Employee(f(0).toInt, f(1), f(2), f(3).toInt,f(4)))
-                   .toDF("Id", "fname", "lname", "age", "city")  
+                   .toDF  
   val sydneyEmployeesDF = employeeDF.select("id", "lname")
                                     .where("city == 'Sydney'")
                                     .orderBy("id")
@@ -216,7 +216,7 @@ object DataFrames {
    */
   case class Listing(street: String, zip: Int, price: Int) 
   val listingsDF = sc.textFile("dir").map(line => line.split(",")).map(f => new Listing(f(0), f(1).toInt, f(2).toInt))
-                   .toDF("street", "zip", "price")
+                   .toDF
   val mostExpensive = listingsDF.groupBy($"zip").max("price") 
   val lessExpensive = listingsDF.groupBy($"zip").min("price")
   
@@ -229,7 +229,7 @@ object DataFrames {
    */
   case class Post(authorID: Int, subforum: String, likes: Int, date: String)
   val postsDF = sc.textFile("dir").map(line => line.split(",")).map(f => new Post(f(0).toInt, f(1), f(2).toInt, f(3)))
-                   .toDF("authorID", "subforum", "likes", "data")
+                   .toDF
   val rankedDF = postsDF.groupBy($"authorID", $"subforum")
                         .agg(count($"authorID")) // new DF with columns authorID, subforum, count(authorID)
                         .orderBy($"subforum", $"count(authorID)".desc)     
@@ -333,8 +333,8 @@ object DataFrames {
                          isEthnicMinority: Boolean,
                          servedInMilitary: Boolean)  
   val demographicsDF = sc.textFile("dir").map(line => line.split(","))
-                                       .map(d => (d(0).toInt, new Demographic(d(0).toInt,d(1).toInt,d(2).toBoolean,d(3),d(4),d(5).toBoolean,d(6).toBoolean)) )
-                                       .toDF("id","age","codingBootcamp","country","gender","isEthnicMinority","servedInMilitary")                         
+                                       .map(d => (new Demographic(d(0).toInt,d(1).toInt,d(2).toBoolean,d(3),d(4),d(5).toBoolean,d(6).toBoolean)) )
+                                       .toDF                         
   
   case class Finances(id: Int,
                       hasDebt: Boolean,
@@ -342,8 +342,8 @@ object DataFrames {
                       hasStudentsLoans: Boolean,
                       income: Int)
   val financesDF = sc.textFile("dir").map(line => line.split(","))
-                                   .map(f => (f(0).toInt, new Finances(f(0).toInt,f(0).toBoolean,f(0).toBoolean,f(0).toBoolean,f(0).toInt)))
-                                   .toDF("id","hasDebt","hasFinancialDependents","hasStudentsLoans","income") 
+                                   .map(f => (new Finances(f(0).toInt,f(0).toBoolean,f(0).toBoolean,f(0).toBoolean,f(0).toInt)))
+                                   .toDF 
   val filtered = financesDF.filter($"hasDebt" && $"hasFinancialDependents")                                
   val joined = demographicsDF.filter($"country" === "Switzerland").join(filtered, demographicsDF("id") === filtered("id"), "inner") 
                              .count()

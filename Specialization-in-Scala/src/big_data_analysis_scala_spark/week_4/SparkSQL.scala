@@ -50,7 +50,7 @@ object SparkSQL {
   
   case class Person(id: Int, name: String, country: String, city: String)
   val tuplePerson = sc.textFile("dir").map(line => line.split(",")).map(f => new Person(f(0).toInt, f(1), f(2), f(3)))
-  val personDF = tuplePerson.toDF("id","name","country","city") //infer the attributes from the case class's fields.
+  val personDF = tuplePerson.toDF //infer the attributes from the case class's fields.
   
   //Create DataFrame from existing RDD, schema explicity specified
   //1. Create an RDD of Rows from the original RDD.
@@ -94,7 +94,7 @@ object SparkSQL {
   case class Employee(id: Int, fname: String, lname: String, age: Int, city: String)
   //DataFrame with schema defined in Emplyee case class
   val employeeDF = sc.textFile("dir").map(line => line.split(",")).map(f => new Employee(f(0).toInt, f(1), f(2), f(3).toInt,f(4)))
-                   .toDF("Id", "fname", "lname", "age", "city")
+                   .toDF
   //Register the DataFrame as a SQL temporary view
   employeeDF.createOrReplaceTempView("employee")
   //Obtain just the IDs and last names of employees working in Sydney, sort the result

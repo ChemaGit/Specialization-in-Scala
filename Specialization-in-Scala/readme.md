@@ -2,7 +2,9 @@ This repository contains code examples about the Specialization Course in Scala 
 "Functional Programming in Scala Specialization".
 Ecole Polytechnique Federale de Lausanne EPFL is the university where "Scala Language" is developed.
 The Specialization Course in Scala is divided in five modules:
-1. Principles of Functional Programming in Scala by Martin Ordesky.
+1. Principles of Functional Programming in Scala by Martin Ordesky. 
+   Martin Ordesky is the creator of the Scala language. He is a professor at EPFL in Lausanne, Switzerland, 
+   where since 2001 he has led the team that developed the Scala language libraries and compiler.
    The primary objective of the course is to learn functional programming from first principles.
    The course show us function programs, methods to construct them, and ways to reason about them.
    Functional programming just means programming without mutable variables, without assignments to those variables, 

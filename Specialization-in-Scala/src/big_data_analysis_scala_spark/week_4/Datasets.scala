@@ -94,6 +94,26 @@ object Datasets {
   
   /**
    * Typed Columns
+   * To create a TypedColumn, all you have to do is call as[...] on your (untyped) Column.
+   * $"price".as[Double] // this now represents a TypedColumn.
+   */
+  
+  /**
+   * Transformations on DataSets
+   * The Dataset API includes both untyped and typed transformations.
+   * untyped transformations the transformations we learned on DataFrames.
+   * typed transformations typed variants of many DataFrame transformations +
+   * additional transformations such as ROD-like higher-order functions map, flatMap, etc.
+   * 
+   * Common (Typed) Transformations on Datasets
+   * - map[U](f: T => U): Dataset[U] ==>> Apply function to each element in the Dataset and return a Dataset of the result.
+   * - flatMap[U](f: T => TraversableOnce[U]): Dataset[U] ==>> Apply a function to each element in the Dataset and return a
+   *   Dataset of the contents of the iterators returned.
+   * - filter(pred: T => Boolean): Dataset[T] ==>> Apply predicate function to each element in the Dataset
+   *   and return a Dataset of elements that have passed the predicate condition, pred.  
+   * - distinct(): Dataset[T] ==>> Return Dataset with duplicates removed.
+   * - group ByKey[K](f: T => K): KeyValueGroupedDataset[K, T] ==>> Apply function to each element in the Dataset 
+   *   and return a Dataset of the result.  
    */
                         
 	def main(args: Array[String]) {

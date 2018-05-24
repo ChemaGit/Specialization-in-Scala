@@ -31,6 +31,23 @@ The Specialization Course in Scala is divided in five modules:
 	 - understand reasoning techniques for programs that combine 
 	   functions and state,
 	 - write simple functional reactive applications.
-3. Parallel Programming in Scala.
+3. Parallel Programming in Scala by Dr. Aleksandar Prokopec, Principal Researcher and Prof. Viktor Kuncak, Associate Professor at 
+   Ecole Polytechnique Federale de Lausanne.
+   In this course, you will learn  the basics of parallel computing, both from a theoretical and
+   a practical aspect. You will see how many familiar ideas from  functional programming map perfectly to the data parallel 
+   paradigm. 
+   Concretely, you will learn about paralleling known algorithms such as merge sort or Monte Carlo methods. You will also discover 
+   some new algorithms, like parallel reduction, or parallel perfect sum. 
+   This knowledge applies to practical problems. Graphics processing, parsing or particle simulation. These are all algorithms that 
+   you will implement in Scala using programming primitives from the standard library.
+   Our lectures contrast parallel programming with sequential programming in Scala that you're already familiar with. We explore 
+   conditions that make a parallel program compute the same result as its sequential counterpart.  
+   In terms of performance, you will learn how to estimate it analytically, as well as how to measure it for your implementations.
+   Throughout, we'll apply these concepts through several hands-on examples that analyze real-world data, such as popular   
+   algorithms like k-means clustering.
+   - reason about task and data parallel programs,
+   - express common algorithms in a functional style and solve them in parallel,
+   - competently microbenchmark parallel code,
+   - write programs that effectively use parallel collections to achieve performance
 4. Big Data Analysis with Scala & Spark
 5. Functional Programming in Scala Capstone

@@ -13,9 +13,16 @@ The Specialization Course in Scala is divided in five modules:
    as a result from a function. Why Functional Programming? because it's very good for exploiting parallelism on multi call and cloud computing,
    so functional programming is important for parallelism and concurrency.
    Scala is a mix between Functional, Imperative and Object-Oriented programming paradigm.
-   The course is full of quizzes, examples, exercises and assignments.
+   The course is full of quizzes, examples, exercises and assignments. The goals are:
+	 - understand the principles of functional programming,
+	 - write purely functional programs, using recursion,
+	   pattern matching, and higher-order functions,
+	 - combine functional programming with objects and classes,
+	 - design immutable data structures,
+	 - reason about properties of functions,
+	 - understand generic types for functional programs    
    Recommended books: Structure and Interpretation of Computer Programs, by Harold Ibelson and Gerald Susman, 
-   second edition appeared at MIT Press in'96. Programming in Scala second edition, by Martiy Ordesky, Lex Spoon, and Bill Venners.
+   second edition appeared at MIT Press in'96. Programming in Scala second edition, by Martiy Ordesky, Lex Spoon, and Bill Venners.  
 2. Functional Program Design in Scala by Martin Ordesky.
    In this course we will learn how to apply the functional programming style in the design of larger applications. 
    We'll get to know important new functional programming concepts, from lazy evaluation to structuring libraries using  monads.
@@ -49,5 +56,19 @@ The Specialization Course in Scala is divided in five modules:
    - express common algorithms in a functional style and solve them in parallel,
    - competently microbenchmark parallel code,
    - write programs that effectively use parallel collections to achieve performance
-4. Big Data Analysis with Scala & Spark
+4. Big Data Analysis with Scala & Spark by Heather Miller, research scientist at Ecole Polytechnique Federale de Lausanne.
+   In this course we're going to cover Spark's programming model in depth. We're then going to go into
+   distributing computation, how to do it and how the cluster is actually laid out in Spark? 
+   We're then going to move on and spend quite a bit of time learning about how to improve performance in Spark. Looking at stuff  
+   like data locality and how to avoid recomputation and especially data shuffles in Spark. 
+   We're going to spend quite a bit of time trying to understand when data shuffles will occur. And finally, we're going to spend 
+   quite a bit of time diving into the relational operations available in Spark SQL module. 
+   To learn how to use the relational operations on DataFrames and Datasets and also all of the benefits that they bring
+   you, as well as a handful of limitations.
+   	- read data from persistent storage and load it into Apache Spark,
+	- manipulate data with Spark and Scala,
+	- express algorithms for data analysis in a functional style, 
+	- recognize how to avoid shuffles and recomputation in Spark,
+	- RDDs, PairRDDs, Spark SQL, DataFrames, Datasets
+
 5. Functional Programming in Scala Capstone

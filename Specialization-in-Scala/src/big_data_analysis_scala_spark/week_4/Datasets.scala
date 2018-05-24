@@ -266,6 +266,35 @@ object Datasets {
   
   /**
    * Limitations of Datasets
+   * - Catalyst optimizes this case.
+   *   Relational filter operation: ds.filter($"city".as[String] === "Boston")
+   *   Performs best because you're explicitly telling Spark which columns/atributes
+   *   and conditions are required in your filter operation. Avoids data moving over the network
+   *   
+   * - Catalyst cannot optimize this case. 
+   *   Functional filter operation: ds.filter(p => p.city == "Boston")
+   *   Same filter written with a function literal is opaque to Spark - it's 
+   *   impossible for Spark to introspect the lambda function.
+   */
+  
+  /**
+   * Limitations of Datasets
+   * Catalyst Can't Optimize All Operations
+   * - When using Datasets with higher-order functions like map, you miss
+   *   out on many Catalyst optimizations.
+   * - When using Datasets with relational operations like select, you get
+   *   all of Catalyst's optimizations.
+   * - Though not all operations on Datasets benefit from Catalyst's optimizations,
+   *   Tungsten is still always running under the hood of Datasets, storing and 
+   *   organizing data in a highly optimized way, which can result in large
+   *   speedups over RDDs.
+   * - Limited Data Types
+   *   If your data can't be expressed by case classes/Products and standard
+   *   Spark SQL data types, it may be difficult to ensure that a Tungsten
+   *   encoder exists for your data type.  
+   * - Requires Semi-Structured/Structured Data
+   *   If your unstructured data cannont be reformulated to adhere to some kind
+   *   of schema, it would be better to use RDDs.      
    */
   
 	def main(args: Array[String]) {

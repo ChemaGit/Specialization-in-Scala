@@ -1,0 +1,2 @@
+Basic Task Parallel Algorithms
+We continue with examples of parallel algorithms by presenting a parallel mergesort. We then explain how operations such as map, reduce, and scan can be computed in parallel. We present associativity as the key condition enabling parallel implementation of reduce and scan.

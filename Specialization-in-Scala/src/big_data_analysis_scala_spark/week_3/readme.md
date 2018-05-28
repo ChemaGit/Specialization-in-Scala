@@ -1,0 +1,2 @@
+Partitioning and Shuffling
+This week we'll look at some of the performance implications of using operations like joins. Is it possible to get the same result without having to pay for the overhead of moving data over the network? We'll answer this question by delving into how we can partition our data to achieve better data locality, in turn optimizing some of our Spark jobs.

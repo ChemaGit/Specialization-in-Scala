@@ -1,0 +1,2 @@
+Parallel Programming
+We motivate parallel programming and introduce the basic constructs for building parallel programs on JVM and Scala. Examples such as array norm and MonteCarlo computations illustrate these concepts. We show how to estimate work and depth of parallel programs as well as how to benchmark the implementations.

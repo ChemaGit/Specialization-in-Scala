@@ -1,19 +1,11 @@
 package observatory
 
 import Visualization._
-import java.text.DecimalFormat
 
 /**
   * 4th milestone: value-added information
   */
 object Manipulation {
-  
-  val df = new DecimalFormat("0.00000000");
-  
-  def formatDouble(value: Double): Temperature = {
-    val temp: Temperature = java.lang.Double.valueOf (df.format(value).replace(",", "."))
-    temp
-  }     
 
   /**
     * @param temperatures Known temperatures
@@ -21,7 +13,7 @@ object Manipulation {
     *         returns the predicted temperature at this location
     */
   def makeGrid(temperatures: Iterable[(Location, Temperature)]): GridLocation => Temperature = GridLocation =>{
-    formatDouble(predictTemperature(temperatures, Location(GridLocation.lat, GridLocation.lon)))
+    predictTemperature(temperatures, Location(GridLocation.lat, GridLocation.lon))
   }
   
   /**
@@ -31,7 +23,7 @@ object Manipulation {
     */
   def average(temperaturess: Iterable[Iterable[(Location, Temperature)]]): GridLocation => Temperature = GridLocation =>{
     val tmps = temperaturess.map(temperature => makeGrid(temperature)(GridLocation)).toList
-    formatDouble(tmps.sum / tmps.length)
+    tmps.sum / tmps.length
   }
 
   /**
@@ -40,7 +32,7 @@ object Manipulation {
     * @return A grid containing the deviations compared to the normal temperatures
     */
   def deviation(temperatures: Iterable[(Location, Temperature)], normals: GridLocation => Temperature): GridLocation => Temperature = GridLocation =>{
-    formatDouble(makeGrid(temperatures)(GridLocation) - normals(GridLocation))
+    makeGrid(temperatures)(GridLocation) - normals(GridLocation)
   }
 }
 

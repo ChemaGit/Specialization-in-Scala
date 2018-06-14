@@ -2,8 +2,9 @@ package observatory
 
 import com.sksamuel.scrimage.{Image, Pixel}
 import scala.math._
-import java.text.DecimalFormat
 import scala.collection.parallel.ParSeq
+
+import java.text.DecimalFormat
 
 /**
   * 2nd milestone: basic visualization
@@ -18,14 +19,14 @@ object Visualization {
   
   val IMAGE_WIDTH = 360
   val IMAGE_HEIGHT = 180  
-  val ALPHA = 127
+  val ALPHA = 127 
   
   val df = new DecimalFormat("0.00000000");
   
   def formatDouble(value: Double): Temperature = {
     val temp: Temperature = java.lang.Double.valueOf (df.format(value).replace(",", "."))
     temp
-  }     
+  }    
   
   /**
    * check if location is antipodes of the 
@@ -65,7 +66,7 @@ object Visualization {
   def inverseDistanceWeighting(distTemp: List[(Double, Temperature)]): Temperature = {
     val weightTemp = distTemp.map({case(dist, temp) => ( (1/pow(dist, P))* temp, 1/pow(dist, P))})
     val norm = weightTemp.foldLeft(0.0,0.0)((p,z) => (p._1 + z._1, p._2 + z._2) )
-    formatDouble(norm._1 / norm._2) 
+    formatDouble(norm._1 / norm._2)
   }
   
   /*Another way to do this

@@ -31,7 +31,7 @@ object Visualization2 {
     d10: Temperature,
     d11: Temperature
   ): Temperature = {
-    d00 * (1 - point.x) * (1 - point.y) + d10 * point.x * (1 - point.y) + d01 * (1 - point.x) * point.y + d11 * point.x * point.y   
+    d00 * (1 - point.x) * (1 - point.y) + d10 * point.x * (1 - point.y) + d01 * (1 - point.x) * point.y + d11 * point.x * point.y  
   }
   
   def auxGrid(grid: GridLocation => Temperature,

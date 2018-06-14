@@ -1,13 +1,11 @@
 package observatory
 
 import java.time.LocalDate
-import java.text.DecimalFormat
 import java.nio.file.Paths
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql._
 import org.apache.spark.rdd._
-import org.apache.spark.sql.functions._
-
+import scala.annotation._
 import org.apache.log4j.{Level, Logger}
 
 /**
@@ -15,8 +13,7 @@ import org.apache.log4j.{Level, Logger}
   */
 object Extraction {
   Logger.getLogger("org.apache.spark").setLevel(Level.WARN)
-  
-  val df = new DecimalFormat("0.00000000");
+    
   
   
   //@transient lazy val conf: SparkConf = new SparkConf().setMaster("local").setAppName("observatory")
@@ -30,11 +27,6 @@ object Extraction {
                                         
   // For implicit conversions like converting RDDs to DataFrames                                        
   import spark.implicits._  
-  
-  def formatDouble(value: Double): Temperature = {
-    val temp: Temperature = java.lang.Double.valueOf (df.format(value).replace(",", "."))
-    temp
-  }   
                                         
   /** @return The filesystem path of the given resource */
   def fsPath(resource: String): String =
@@ -96,6 +88,15 @@ object Extraction {
     stations.join(temperatures).mapValues(v => (v._2._1, v._1, v._2._2)).values
   }*/  
   
+  def getPartitionLocateTemperatures(): RDD[(LocalDate, Location, Temperature)] = {
+    @annotation.tailrec
+    def loop(): RDD[(LocalDate, Location, Temperature)] = {
+      ???
+    }
+      
+    ???
+  }
+  
   /**
     * @param year             Year number
     * @param stationsFile     Path of the stations resource file to use (e.g. "/stations.csv")
@@ -104,10 +105,11 @@ object Extraction {
     */
   def locateTemperatures(year: Year, stationsFile: String, temperaturesFile: String): Iterable[(LocalDate, Location, Temperature)] = { 
     //locateTemperaturesSpark(year, stationsFile, temperaturesFile).collect.par
-    //.map(j => (LocalDate.of(j.year,j.month,j.day),j.loc,j.temperature)).toVector 
-    
-    locateTemperaturesSpark(year, stationsFile, temperaturesFile).take(10000).par
-    .map(j => (LocalDate.of(j.year,j.month,j.day),j.loc,j.temperature)).toVector     
+    //.map(j => (LocalDate.of(j.year,j.month,j.day),j.loc,j.temperature)).toVector   
+    locateTemperaturesSpark(year, stationsFile, temperaturesFile).rdd.zipWithIndex()
+    .filter({case(value, index) => index <= 1000000})
+    .map({case(value, index) => value}).collect().par
+    .map(j => (LocalDate.of(j.year,j.month,j.day),j.loc,j.temperature)).toVector
   }
   
   /*def locateTemperatures(year: Year, stationsFile: String, temperaturesFile: String): Iterable[(LocalDate, Location, Temperature)] = {
@@ -144,7 +146,7 @@ object Extraction {
     records.map({case(date, loc, temp) => (loc,(temp, 1))})
            .sortBy({case(loc, (temp, cont)) => ( (loc.lat, loc.lon), true, 8)})
            .reduceByKey({case(v, v1) => (v._1 + v1._1, v._2 + v1._2)})
-           .mapValues({case(temp, cont) => formatDouble(temp/cont)})                       
+           .mapValues({case(temp, cont) => temp/cont})                       
   }  
   
   /**
@@ -153,8 +155,10 @@ object Extraction {
     */
   def locationYearlyAverageRecords(records: Iterable[(LocalDate, Location, Temperature)]): Iterable[(Location, Temperature)] = { 
     val rdd = spark.sparkContext.parallelize(records.toSeq)
-    locationYearlyAverageRecordsSpark(rdd).collect().par.toVector    
-  }
+    val temp = locationYearlyAverageRecordsSpark(rdd).collect()  
+    spark.sparkContext.stop()
+    temp.par.toVector 
+  }  
   
   /*def locationYearlyAverageRecords(records: Iterable[(LocalDate, Location, Double)]): Iterable[(Location, Double)] = {   
     records.map(f => (f._2,f._3))

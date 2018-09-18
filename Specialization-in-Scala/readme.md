@@ -1,4 +1,4 @@
-This repository contains code examples about the Specialization Course in Scala from Ecole Polytechnique Federale de Lausanne 
+This repository contains code examples and theory about the Specialization Course in Scala from Ecole Polytechnique Federale de Lausanne 
 "Functional Programming in Scala Specialization".
 Ecole Polytechnique Federale de Lausanne EPFL is the university where "Scala Language" is developed.
 The Specialization Course in Scala is divided in five modules:
@@ -27,7 +27,7 @@ The Specialization Course in Scala is divided in five modules:
    In this course we will learn how to apply the functional programming style in the design of larger applications. 
    We'll get to know important new functional programming concepts, from lazy evaluation to structuring libraries using  monads.
    We'll work on larger and more involved examples, from state space exploration to random testing to discrete circuit simulators.
-   We’ll also learn some best practices on how to write good Scala code in the real world.
+   Weâ€™ll also learn some best practices on how to write good Scala code in the real world.
    Several parts of this course deal with the question how functional programming interacts with mutable state. We will explore the
    consequences of combining functions and state. We will also look at purely functional alternatives to mutable state, using
    infinite data structures or functional reactive programming.
@@ -79,7 +79,7 @@ The Specialization Course in Scala is divided in five modules:
 	interactive visualizations of the evolution of temperatures over time all over the world.
 	
 	The development of such an application will involve:
-	 — transforming data provided by weather stations into meaningful information like, for instance, the average 
+	 â€” transforming data provided by weather stations into meaningful information like, for instance, the average 
 	   temperature of each point of the globe over the last ten years ;
-	 — then, making images from this information by using spatial and linear interpolation techniques ;
-	 — finally, implementing how the user interface will react to users’ actions.
+	 â€” then, making images from this information by using spatial and linear interpolation techniques ;
+	 â€” finally, implementing how the user interface will react to usersâ€™ actions.
